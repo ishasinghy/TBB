@@ -1,0 +1,194 @@
+Let's implement the new features you've described, addressing each of them in detail.
+
+---
+
+### **1. Improved Rainbow Cursor Trail**
+
+To enhance the rainbow trail, we'll mimic your example using customizable trail settings and dynamic color shifting:
+
+#### **Updated Code in `renderer.js` for Cursor Trail**
+
+```javascript
+let trail = [];
+let h = 0;
+
+const trailLength = 200;
+const segmentSize = 20;
+const colorSpeed = 1;
+const innerColorSpeed = 5;
+
+document.body.addEventListener('mousemove', (event) => {
+    trail.push({
+        x: event.pageX,
+        y: event.pageY,
+    });
+
+    let thisColor = h;
+    trail.forEach((seg, i) => {
+        const trailDiv = document.createElement('div');
+        trailDiv.classList.add('trail');
+        trailDiv.style.left = `${seg.x}px`;
+        trailDiv.style.top = `${seg.y}px`;
+        trailDiv.style.backgroundColor = `hsl(${thisColor}, 100%, 50%)`;
+
+        document.body.appendChild(trailDiv);
+        setTimeout(() => trailDiv.remove(), 500);
+
+        thisColor = (thisColor + innerColorSpeed) % 360;
+    });
+
+    if (trail.length > trailLength) {
+        trail.shift();
+    }
+
+    h = (h + colorSpeed) % 360;
+});
+```
+
+#### **Updated `style.css` for Trail Animation**
+
+```css
+.trail {
+    position: absolute;
+    width: 20px;  /* Matches the segmentSize */
+    height: 20px;
+    border-radius: 50%;
+    pointer-events: none;
+    animation: fade 0.5s;
+}
+
+@keyframes fade {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+```
+
+---
+
+### **2. Search Engine and Dynamic Tab Loading**
+
+We need to ensure that the browser loads real pages for each tab, as well as implements a functional search.
+
+#### **Fixing Tab Loading Issues**
+
+We'll first modify how the tabs load external URLs to prevent Electron's security issues (like `ERR_BLOCKED_BY_RESPONSE`). This happens due to CORS or other security policies. To resolve it, we'll make sure `nodeIntegration` is set to `false`, and `contextIsolation` is enabled for security purposes.
+
+#### **Updated `main.js`**
+
+```javascript
+function createWindow() {
+    mainWindow = new BrowserWindow({
+        width: 1280,
+        height: 800,
+        webPreferences: {
+            preload: path.join(__dirname, 'renderer.js'),
+            nodeIntegration: false, // Disable node integration for security
+            contextIsolation: true,  // Enable context isolation
+            webviewTag: true,  // Allows <webview> tag to work
+            enableRemoteModule: false,
+        },
+        icon: path.join(__dirname, 'logo.png')  // Browser icon
+    });
+
+    mainWindow.loadFile('index.html');
+
+    // Set zoom factor to 5%
+    mainWindow.webContents.on('did-finish-load', () => {
+        mainWindow.webContents.setZoomFactor(1.05);
+    });
+
+    // Cat popup every 15 minutes
+    setInterval(() => {
+        mainWindow.webContents.send('cat-popup');
+    }, 15 * 60 * 1000);  // 15 minutes
+}
+```
+
+#### **Search Bar Implementation**
+
+Modify the search engine in `renderer.js` to handle queries and load a search engine in the `webview`.
+
+```javascript
+document.addEventListener('DOMContentLoaded', () => {
+    const searchBar = document.getElementById('searchBar');
+    const searchInput = document.getElementById('searchInput');
+    const searchButton = document.getElementById('searchButton');
+    const webview = document.getElementById('webview');
+    const tabs = document.querySelectorAll('.tab');
+
+    // Handle tab clicks
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            webview.src = tab.getAttribute('data-url');
+            shuffleTabs();
+        });
+    });
+
+    // Toggle search bar with Ctrl + Q
+    document.addEventListener('keydown', (event) => {
+        if (event.ctrlKey && event.key === 'q') {
+            searchBar.classList.toggle('hidden');
+        }
+    });
+
+    // Perform search when search button is clicked
+    searchButton.addEventListener('click', () => {
+        const query = searchInput.value;
+        webview.src = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
+        searchBar.classList.add('hidden');
+    });
+});
+```
+
+#### **Ensuring Web Pages Load Properly**
+
+In your `index.html`, we’ll ensure that each tab loads actual web pages and remove any issues caused by external URLs.
+
+```html
+<!-- Vertical Sidebar with Actual Webpages -->
+<div id="sidebar">
+    <div class="tab" data-url="https://google.com">Google</div>
+    <div class="tab" data-url="https://duckduckgo.com">DuckDuckGo</div>
+    <div class="tab" data-url="https://github.com">GitHub</div>
+</div>
+
+<!-- Webview for Displaying Pages -->
+<webview id="webview" src="https://example.com" style="width: calc(100% - 200px); height: calc(100vh - 40px);" sandbox="allow-scripts allow-same-origin"></webview>
+```
+
+The `webview` tag in Electron allows us to load real web pages safely. Note that the `sandbox` attribute ensures safer loading of external sites.
+
+---
+
+### **3. Homepage with Tiled GIF and Message**
+
+We’ll add a tiled GIF as the background on the homepage and a message saying "Ctrl + Q to search for websites" in Sans font.
+
+#### **Homepage Code in `index.html`**
+
+```html
+<div id="homepage" class="homepage">
+    <p>Ctrl + Q to search for websites</p>
+</div>
+```
+
+#### **CSS for Tiled GIF Background**
+
+In `style.css`:
+
+```css
+.homepage {
+    background-image: url('your-gif.gif');
+    background-size: 100px 100px; /* Tiled effect */
+    background-repeat: repeat;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.homepage p {
+    font-family: 'Sans-serif';
+    color: black;
+    font-size: 24px;
+}
