@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Bad Browser</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div id="sidebar">
+      <!-- Tabs will be dynamically added here -->
+    </div>
+    <div id="main-content">
+      <div id="nav-buttons">
+        <button id="back-btn">&lt;-</button>
+        <button id="refresh-btn">refresh</button>
+        <button id="forward-btn">-&gt;</button>
+      </div>
+      <div id="webview-container">
+        <webview id="webview" src="about:blank"></webview>
+      </div>
+    </div>
+    <div id="search-overlay" class="hidden">
+      <input type="text" id="search-input" placeholder="Search..." />
+    </div>
+    <div id="cat-popup" class="hidden">
+      <img src="../assets/cat.jpg" alt="Cat" />
+      <button id="close-cat">Close</button>
+    </div>
+    <button id="theme-toggle">😊</button>
+    <script src="renderer.js"></script>
+  </body>
+</html>

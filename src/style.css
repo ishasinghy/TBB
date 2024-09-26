@@ -1,0 +1,154 @@
+body,
+html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: Arial, sans-serif;
+  overflow: hidden;
+}
+
+#sidebar {
+  width: 200px;
+  height: 100%;
+  position: fixed;
+  left: 0;
+  top: 0;
+  background-color: #f1f1f1;
+  overflow-y: scroll;
+  transition: transform 0.3s ease;
+}
+
+.tab {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+  cursor: pointer;
+}
+
+#main-content {
+  margin-left: 200px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+#nav-buttons {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+}
+
+#webview-container {
+  flex-grow: 1;
+}
+
+#webview {
+  width: 100%;
+  height: 100%;
+}
+
+#search-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+#search-overlay.hidden {
+  display: none;
+}
+
+#search-input {
+  width: 80%;
+  padding: 10px;
+  font-size: 18px;
+}
+
+#cat-popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  z-index: 2000;
+}
+
+#cat-popup.hidden {
+  display: none;
+}
+
+#theme-toggle {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  font-size: 24px;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+/* Theme styles */
+body.light {
+  background-color: white;
+  color: black;
+}
+body.dark {
+  background-color: #333;
+  color: white;
+}
+body.red {
+  background-color: #ffcccb;
+  color: #8b0000;
+}
+body.orange {
+  background-color: #ffd700;
+  color: #ff4500;
+}
+body.yellow {
+  background-color: #ffffe0;
+  color: #ffa500;
+}
+body.green {
+  background-color: #90ee90;
+  color: #006400;
+}
+body.blue {
+  background-color: #add8e6;
+  color: #00008b;
+}
+body.indigo {
+  background-color: #e6e6fa;
+  color: #4b0082;
+}
+body.violet {
+  background-color: #ee82ee;
+  color: #8a2be2;
+}
+
+/* Homepage styles */
+#homepage {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-image: url("../assets/wow.gif");
+  background-repeat: repeat;
+}
+
+#homepage-text {
+  font-family: "Comic Sans MS", cursive;
+  font-size: 24px;
+  color: black;
+  background-color: rgba(255, 255, 255, 0.7);
+  padding: 20px;
+  border-radius: 10px;
+}
