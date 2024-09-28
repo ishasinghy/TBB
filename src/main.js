@@ -31,7 +31,7 @@ function createWindow() {
       .filter((file) => file.startsWith("cat") && file.endsWith(".png"));
     const randomCat = catImages[Math.floor(Math.random() * catImages.length)];
     win.webContents.send("show-cat-popup", randomCat);
-  }, 1000); //15 * 60 *
+  }, 15 * 60 * 1000);
 }
 
 app.whenReady().then(() => {
