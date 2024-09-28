@@ -2,15 +2,17 @@
   "name": "tbb",
   "version": "1.0.0",
   "description": "The Bad Browser",
-  "main": "main.js",
+  "main": "src/main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "electron ."
   },
-  "keywords": [],
-  "author": "",
+  "author": "isha singh",
   "license": "ISC",
   "devDependencies": {
     "electron": "^32.1.2"
+  },
+  "dependencies": {
+    "electron-store": "^10.0.0"
   }
 }

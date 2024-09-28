@@ -25,7 +25,7 @@ const themes = [
 let currentThemeIndex = 0;
 
 function createTab(url) {
-  const tab = { id: Date.now(), url: url, title: "New Tab" };
+  const tab = { id: Date.now(), url: url, title: "Loading..." };
   tabs.push(tab);
   renderTabs();
   switchToTab(tab.id);
@@ -36,7 +36,10 @@ function renderTabs() {
   tabs.forEach((tab) => {
     const tabElement = document.createElement("div");
     tabElement.className = "tab";
-    tabElement.textContent = tab.title;
+    tabElement.innerHTML = `
+      <div class="tab-title">${tab.title}</div>
+      <div class="tab-url">${tab.url}</div>
+    `;
     tabElement.onclick = () => switchToTab(tab.id);
     sidebar.appendChild(tabElement);
   });
@@ -53,9 +56,19 @@ function shuffleTabs() {
   renderTabs();
 }
 
+function closeTab(tabId) {
+  tabs = tabs.filter((tab) => tab.id !== tabId);
+  if (tabs.length === 0) {
+    loadHomepage();
+  } else {
+    switchToTab(tabs[0].id);
+  }
+  renderTabs();
+}
+
 function loadHomepage() {
-  webview.src =
-    'data:text/html,<html><body style="margin:0;padding:0;height:100vh;display:flex;justify-content:center;align-items:center;background-image:url(../assets/wow.gif);background-repeat:repeat;"><div style="font-family:Comic Sans MS,cursive;font-size:24px;color:black;background-color:rgba(255,255,255,0.7);padding:20px;border-radius:10px;">Press Ctrl+Q to search for websites</div></body></html>';
+  webview.src = "about:blank";
+  document.getElementById("homepage").style.display = "flex";
 }
 
 // Event listeners
@@ -71,12 +84,13 @@ document.addEventListener("keydown", (e) => {
 searchInput.addEventListener("keydown", (e) => {
   if (e.key === "Enter") {
     const searchTerm = searchInput.value;
-    const searchUrl = `https://www.google.com/search?q=${encodeURIComponent(
+    const searchUrl = `https://duckduckgo.com/?q=${encodeURIComponent(
       searchTerm
     )}`;
     createTab(searchUrl);
     searchOverlay.classList.add("hidden");
     searchInput.value = "";
+    document.getElementById("homepage").style.display = "none";
   }
 });
 
@@ -86,7 +100,7 @@ refreshBtn.addEventListener("click", () => webview.reload());
 
 closeCatBtn.addEventListener("click", () => {
   catPopup.classList.add("hidden");
-  createTab("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
+  createTab("https://youtu.be/w_uo3FyGN3k?si=yFzurE0Jz4dUX68A");
 });
 
 themeToggle.addEventListener("click", () => {
@@ -95,44 +109,46 @@ themeToggle.addEventListener("click", () => {
 });
 
 // Rainbow cursor trail
-const trailLength = 200;
-const segmentSize = 20;
 const trail = [];
-let hue = 0;
+const trailLength = 20;
 
 document.addEventListener("mousemove", (e) => {
-  trail.push({ x: e.clientX, y: e.clientY });
+  const dot = document.createElement("div");
+  dot.className = "trail";
+  dot.style.left = e.pageX + "px";
+  dot.style.top = e.pageY + "px";
+  document.body.appendChild(dot);
+
+  trail.push(dot);
+
   if (trail.length > trailLength) {
-    trail.shift();
-  }
-  updateTrail();
-});
-
-function updateTrail() {
-  const trailElement = document.getElementById("cursor-trail");
-  if (!trailElement) {
-    const newTrailElement = document.createElement("div");
-    newTrailElement.id = "cursor-trail";
-    document.body.appendChild(newTrailElement);
+    document.body.removeChild(trail.shift());
   }
 
-  let trailHTML = "";
-  trail.forEach((segment, index) => {
-    const opacity = 1 - index / trailLength;
-    const segmentHue = (hue + index * 2) % 360;
-    trailHTML += `<div style="position:absolute;left:${segment.x}px;top:${segment.y}px;width:${segmentSize}px;height:${segmentSize}px;border-radius:50%;background-color:hsla(${segmentHue},100%,50%,${opacity});pointer-events:none;"></div>`;
+  trail.forEach((dot, index) => {
+    const hue = (index * 15) % 360;
+    dot.style.backgroundColor = `hsl(${hue}, 100%, 50%)`;
+    dot.style.opacity = 1 - index / trailLength;
   });
-
-  document.getElementById("cursor-trail").innerHTML = trailHTML;
-  hue = (hue + 1) % 360;
-  requestAnimationFrame(updateTrail);
-}
+});
 
 // Initialize
 loadHomepage();
 
 // Handle messages from the main process
-window.electronAPI.onShowCatPopup(() => {
+window.electronAPI.onShowCatPopup((catImage) => {
+  catPopup.querySelector("img").src = `../assets/catroll/${catImage}`;
+
+  // Randomize the position of the cat popup
+  const maxX = window.innerWidth - 200; // 200px is an approximate width of the popup
+  const maxY = window.innerHeight - 200; // 200px is an approximate height of the popup
+  const randomX = Math.floor(Math.random() * maxX);
+  const randomY = Math.floor(Math.random() * maxY);
+
+  catPopup.style.left = `${randomX}px`;
+  catPopup.style.top = `${randomY}px`;
+  catPopup.style.transform = "none"; // Remove the centering transform
+
   catPopup.classList.remove("hidden");
 });
 
@@ -142,3 +158,43 @@ window.electronAPI.onThemeChanged((theme) => {
 
 // Get initial theme
 window.electronAPI.getTheme();
+
+// Update tab title when page loads
+webview.addEventListener("did-start-loading", () => {
+  if (activeTab) {
+    activeTab.title = "Loading...";
+    renderTabs();
+  }
+});
+
+webview.addEventListener("did-stop-loading", () => {
+  if (activeTab) {
+    activeTab.title = webview.getTitle();
+    activeTab.url = webview.getURL();
+    renderTabs();
+    if (webview.getURL().indexOf("duckduckgo.com") === -1) {
+      currentThemeIndex = (currentThemeIndex + 1) % themes.length;
+      window.electronAPI.setTheme(themes[currentThemeIndex]);
+    }
+  }
+});
+
+// Fun feature: Randomly rotate content
+function startShaking() {
+  const angle = Math.random() * 10 - 5; // Random angle between -5 and 5 degrees
+  webview.style.transform = `rotate(${angle}deg)`;
+  setTimeout(startShaking, Math.random() * 5000 + 1000); // Random interval between 1-6 seconds
+}
+
+startShaking();
+
+// Fun feature: Occasionally invert colors
+setInterval(() => {
+  if (Math.random() < 0.1) {
+    // 10% chance every 10 seconds
+    webview.style.filter = "invert(100%)";
+    setTimeout(() => {
+      webview.style.filter = "none";
+    }, 10000);
+  }
+}, 10000);

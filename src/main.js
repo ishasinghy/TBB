@@ -1,8 +1,12 @@
 const { app, BrowserWindow, ipcMain } = require("electron");
 const path = require("path");
-const Store = require("electron-store");
+const fs = require("fs");
+let store;
 
-const store = new Store();
+(async () => {
+  const Store = await import("electron-store");
+  store = new Store.default();
+})();
 
 function createWindow() {
   const win = new BrowserWindow({
@@ -11,6 +15,7 @@ function createWindow() {
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
+      webviewTag: true,
       preload: path.join(__dirname, "preload.js"),
     },
     icon: path.join(__dirname, "../assets/logo.png"),
@@ -19,15 +24,18 @@ function createWindow() {
   win.loadFile(path.join(__dirname, "index.html"));
   win.webContents.setZoomFactor(1.05); // 5% zoom
 
-  // Implement cat popup and rickroll every 15 minutes
+  // Implement cat popup every 15 minutes
   setInterval(() => {
-    win.webContents.send("show-cat-popup");
-  }, 15 * 60 * 1000);
+    const catImages = fs
+      .readdirSync(path.join(__dirname, "../assets/catroll"))
+      .filter((file) => file.startsWith("cat") && file.endsWith(".png"));
+    const randomCat = catImages[Math.floor(Math.random() * catImages.length)];
+    win.webContents.send("show-cat-popup", randomCat);
+  }, 1000); //15 * 60 *
 }
 
 app.whenReady().then(() => {
   createWindow();
-
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) {
       createWindow();

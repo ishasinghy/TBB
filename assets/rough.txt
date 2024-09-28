@@ -1,3 +1,12 @@
+
+
+ok can we start the shaking randomly? and the cursor should have the trail all the time. and the theme should change if my browser not of ddg. 
+and the cat can now come every 15 min, and the png shld be selected randomly from a folder in assets called catroll with images cat1.png cat2.png.. etc upto cat10
+
+
+package . json ,
+  "type": "commonjs"
+---------------
 Let's implement the new features you've described, addressing each of them in detail.
 
 ---
@@ -100,7 +109,7 @@ function createWindow() {
     // Cat popup every 15 minutes
     setInterval(() => {
         mainWindow.webContents.send('cat-popup');
-    }, 15 * 60 * 1000);  // 15 minutes
+    },  1000);  // 15 minutes 15 * 60 *
 }
 ```
 

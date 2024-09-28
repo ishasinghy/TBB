@@ -24,6 +24,19 @@ html {
   cursor: pointer;
 }
 
+.tab-title {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.tab-url {
+  font-size: 0.8em;
+  color: #666;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 #main-content {
   margin-left: 200px;
   height: 100%;
@@ -68,22 +81,47 @@ html {
   padding: 10px;
   font-size: 18px;
 }
-
 #cat-popup {
+  position: fixed;
+  background-color: transparent;
+  padding: 10px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  z-index: 2000;
+  width: 200px; /* Set a fixed width */
+  height: 200px; /* Set a fixed height */
+}
+
+#cat-popup img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* This will ensure the image covers the area without distortion */
+  border-radius: 10px;
+}
+
+#cat-popup.hidden {
+  display: none;
+}
+/* #cat-popup {
   position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background-color: white;
+  background-color: transparent;
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
   z-index: 2000;
 }
 
+#cat-popup img {
+  max-width: 100%;
+  height: auto;
+}
+
 #cat-popup.hidden {
   display: none;
-}
+} */
 
 #theme-toggle {
   position: fixed;
@@ -135,20 +173,53 @@ body.violet {
 
 /* Homepage styles */
 #homepage {
-  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   display: flex;
-  flex-direction: column;
   justify-content: center;
   align-items: center;
   background-image: url("../assets/wow.gif");
   background-repeat: repeat;
+  z-index: 999;
 }
 
 #homepage-text {
-  font-family: "Comic Sans MS", cursive;
+  font-family: "Comic Sans MS", sans-serif;
   font-size: 24px;
   color: black;
   background-color: rgba(255, 255, 255, 0.7);
   padding: 20px;
   border-radius: 10px;
+}
+
+/* Rainbow trail */
+.trail {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/* Fun feature: Wobble everything slightly */
+@keyframes wobble {
+  0% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(0.5deg);
+  }
+  75% {
+    transform: rotate(-0.5deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+body * {
+  animation: wobble 0.5s infinite;
 }

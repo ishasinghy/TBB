@@ -6,5 +6,5 @@ contextBridge.exposeInMainWorld("electronAPI", {
   onThemeChanged: (callback) =>
     ipcRenderer.on("theme-changed", (event, theme) => callback(theme)),
   onShowCatPopup: (callback) =>
-    ipcRenderer.on("show-cat-popup", () => callback()),
+    ipcRenderer.on("show-cat-popup", (event, catImage) => callback(catImage)),
 });
