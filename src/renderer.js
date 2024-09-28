@@ -23,6 +23,7 @@ const themes = [
   "violet",
 ];
 let currentThemeIndex = 0;
+let isStupidFeaturesEnabled = true;
 
 function createTab(url) {
   const tab = { id: Date.now(), url: url, title: "Loading..." };
@@ -71,6 +72,104 @@ function loadHomepage() {
   document.getElementById("homepage").style.display = "flex";
 }
 
+// Cursor Chaos
+function cursorChaos() {
+  const maxX = window.innerWidth;
+  const maxY = window.innerHeight;
+  const randomX = Math.floor(Math.random() * maxX);
+  const randomY = Math.floor(Math.random() * maxY);
+  const fakeCursor = document.createElement("div");
+  fakeCursor.style.position = "fixed";
+  fakeCursor.style.left = `${randomX}px`;
+  fakeCursor.style.top = `${randomY}px`;
+  fakeCursor.style.width = "20px";
+  fakeCursor.style.height = "20px";
+  fakeCursor.style.backgroundColor = "black";
+  fakeCursor.style.borderRadius = "50%";
+  fakeCursor.style.zIndex = "9999";
+  document.body.appendChild(fakeCursor);
+  setTimeout(() => document.body.removeChild(fakeCursor), 2000);
+}
+
+// Zoom Madness
+function zoomMadness() {
+  const zoomLevels = [0.5, 0.75, 1, 1.25, 1.5, 2];
+  const randomZoom = zoomLevels[Math.floor(Math.random() * zoomLevels.length)];
+  webview.setZoomFactor(randomZoom);
+  setTimeout(() => webview.setZoomFactor(1), 5000); // Reset zoom after 5 seconds
+}
+
+// Noisy Navigation
+const navigationSounds = [
+  "../assets/sounds/beep.mp3",
+  "../assets/sounds/boop.mp3",
+  "../assets/sounds/ding.mp3",
+  "../assets/sounds/dong.mp3",
+];
+
+function playRandomSound() {
+  const randomSound =
+    navigationSounds[Math.floor(Math.random() * navigationSounds.length)];
+  const audio = new Audio(randomSound);
+  audio.play();
+}
+
+// Fake Loading Overlay
+function fakeLoadingOverlay() {
+  const overlay = document.createElement("div");
+  overlay.style.position = "fixed";
+  overlay.style.top = "0";
+  overlay.style.left = "0";
+  overlay.style.width = "100%";
+  overlay.style.height = "100%";
+  overlay.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
+  overlay.style.zIndex = "10000";
+  overlay.style.display = "flex";
+  overlay.style.justifyContent = "center";
+  overlay.style.alignItems = "center";
+  overlay.style.color = "white";
+  overlay.style.fontSize = "24px";
+  overlay.innerText = "Loading... Please wait...";
+  document.body.appendChild(overlay);
+  setTimeout(() => document.body.removeChild(overlay), 3000);
+}
+
+// Keyboard Konfusion
+const originalKeyHandler = document.onkeydown;
+function keyboardKonfusion(event) {
+  const confusedKeys = {
+    e: "r",
+    r: "e",
+    a: "s",
+    s: "a",
+    t: "y",
+    y: "t",
+  };
+  if (confusedKeys[event.key]) {
+    event.preventDefault();
+    const newEvent = new KeyboardEvent("keydown", {
+      key: confusedKeys[event.key],
+      code: event.code,
+      which: event.which,
+      keyCode: event.keyCode,
+      bubbles: true,
+      cancelable: true,
+    });
+    event.target.dispatchEvent(newEvent);
+  } else {
+    originalKeyHandler && originalKeyHandler(event);
+  }
+}
+
+// Random feature trigger
+function triggerRandomFeature() {
+  if (!isStupidFeaturesEnabled) return;
+
+  const features = [cursorChaos, zoomMadness, fakeLoadingOverlay];
+  const randomFeature = features[Math.floor(Math.random() * features.length)];
+  randomFeature();
+}
+
 // Event listeners
 document.addEventListener("keydown", (e) => {
   if (e.ctrlKey && e.key === "q") {
@@ -78,6 +177,17 @@ document.addEventListener("keydown", (e) => {
     searchInput.focus();
   } else if (e.ctrlKey && e.key === "l" && activeTab) {
     closeTab(activeTab.id);
+  } else if (e.ctrlKey && e.key === "b") {
+    isStupidFeaturesEnabled = !isStupidFeaturesEnabled;
+    if (isStupidFeaturesEnabled) {
+      document.onkeydown = keyboardKonfusion;
+    } else {
+      document.onkeydown = originalKeyHandler;
+      webview.setZoomFactor(1); // Reset zoom when disabling features
+    }
+    console.log(
+      `Stupid features ${isStupidFeaturesEnabled ? "enabled" : "disabled"}`
+    );
   }
 });
 
@@ -165,6 +275,7 @@ webview.addEventListener("did-start-loading", () => {
     activeTab.title = "Loading...";
     renderTabs();
   }
+  playRandomSound();
 });
 
 webview.addEventListener("did-stop-loading", () => {
@@ -195,6 +306,28 @@ setInterval(() => {
     webview.style.filter = "invert(100%)";
     setTimeout(() => {
       webview.style.filter = "none";
-    }, 10000);
+    }, 1000);
   }
 }, 10000);
+
+// Trigger a random feature every 2 minutes
+setInterval(triggerRandomFeature, 2 * 60 * 1000);
+// // Fun feature: Randomly rotate content
+// function startShaking() {
+//   const angle = Math.random() * 10 - 5; // Random angle between -5 and 5 degrees
+//   webview.style.transform = `rotate(${angle}deg)`;
+//   setTimeout(startShaking, Math.random() * 5000 + 1000); // Random interval between 1-6 seconds
+// }
+
+// startShaking();
+
+// // Fun feature: Occasionally invert colors
+// setInterval(() => {
+//   if (Math.random() < 0.1) {
+//     // 10% chance every 10 seconds
+//     webview.style.filter = "invert(100%)";
+//     setTimeout(() => {
+//       webview.style.filter = "none";
+//     }, 10000);
+//   }
+// }, 10000);
